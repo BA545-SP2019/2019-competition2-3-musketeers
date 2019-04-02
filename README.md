@@ -9,4 +9,4 @@
 
 #
 
-**![](/Data_Dictionary_picture.JPEG)**
+**![](/Data_Dictionary_picture.JPG)**
