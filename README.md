@@ -7,6 +7,10 @@
 **Goal:** 
 **Explanation of Work:**
 
-#
+## - 
 
-**![](/Data_Dictionary_picture.JPG)**
+The Team began the project by examining each of the attributes and getting an understanding from the website . [Link to website](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients).
+
+
+We then created our Data Dictionary: **![](/Data_Dictionary_picture.JPG)**
+
