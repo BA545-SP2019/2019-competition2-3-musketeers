@@ -28,5 +28,6 @@ We then created our Data Dictionary: **![](/Data_Dictionary_picture.JPG)**
  - We observed -2 values in the "PAY" columns, -2 is not listed in the data dictionary. We were unsure what best way to deal with the -2 values so we performed a quick model evaulation (using Naieve Bayes and a logistic regression) of different methods to test their significant.
      -  We left them as is(-2), we imputed them using the column mode, we changed them to -1(assumed that all negative values meant the customer payment on time), and we combined them with 0 (which is also not described in the data dictionary) creating a "other" category
      - The performance of all 4 methods were almost identical, therefore it was decided that the -2 values were not siginificant in our models performance. We also note that the -2 values are only appromimately 7% of the data
+ - Plotted a correlation matrix
  - Plotted a PCA analyisis of the data
  
