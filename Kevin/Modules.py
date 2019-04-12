@@ -20,3 +20,5 @@ def read_data(path):
     df.rename(index=str, columns = {'PAY_0': 'PAY_1'}, inplace=True)
 
     return df,  y
+
+
