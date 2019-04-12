@@ -64,3 +64,59 @@ def make_hist(df, features, n_rows, n_cols, n_bins):
         ax.set_title(variable)
     plt.tight_layout()
     plt.show() 
+    
+    
+    
+def evaluate_baseline(df, NB = True):
+    '''evalueates a df with a Guassian Naive Bayes Model.
+        Input: a dataframe
+               NB = True is want to run a simple Naive Bayes model
+               NB= False if want to run a simple Logistic Regression Model
+        Output: 10-fold cross validation f1 score and AUC score.
+    
+    '''
+    import pandas as pd
+    import numpy as np
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split, KFold, cross_val_score
+    from sklearn.metrics import classification_report, confusion_matrix
+
+    X = df.drop('Y', axis = 1)
+    y = df['Y']
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 2019)
+
+    #begin oversampling
+    oversample = pd.concat([X_train,y_train],axis=1)
+    max_size = oversample['Y'].value_counts().max()
+    lst = [oversample]
+
+    for class_index, group in oversample.groupby('Y'):
+        lst.append(group.sample(max_size-len(group), replace=True))
+    X_train = pd.concat(lst)
+    y_train=pd.DataFrame.copy(X_train['Y'])
+    del X_train['Y']
+
+    if NB:
+        clf = GaussianNB()
+    else:
+        clf = LogisticRegression()
+
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict(X_test)
+
+    
+    #10-fold cross validation
+    kfold = KFold(n_splits=10, random_state=2019)
+    results = cross_val_score(clf, X_train, y_train, cv=kfold, scoring='f1')
+    print(results)
+    print()
+    print('corss-validation f1 score:', np.mean(results))
+    #results_auc = cross_val_score(clf, X_train, y_train, cv=kfold, scoring='roc_auc')
+    #print()
+    #print('cross-validation auc score:', np.mean(results_auc))
