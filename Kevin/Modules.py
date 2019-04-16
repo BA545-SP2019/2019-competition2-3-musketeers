@@ -120,3 +120,41 @@ def evaluate_baseline(df, NB = True):
     #results_auc = cross_val_score(clf, X_train, y_train, cv=kfold, scoring='roc_auc')
     #print()
     #print('cross-validation auc score:', np.mean(results_auc))
+    
+    
+def XGBoost_evaluate(df):
+    '''baseline xgboos classifier for investigating creating new sequential data.
+    Input: a dataframe with desired features. Target feature must be labled as "Y".
+    Ouput: 50-fold cross validation with auc and mean-avg-precision scores.
+    The process is a follows:
+    #1: split data into a train & test split
+    #2: create oversampled data, set a dmatrix. Will use this to train the XGBoost model.
+    #3: train XGBoost.cv on the oversampled dmatrix
+    '''
+    import xgboost as xgb
+    from sklearn.model_selection import train_test_split, KFold, cross_val_score
+    import sklearn.metrics
+    from imblearn.over_sampling import RandomOverSampler
+
+    #1
+    X = df.drop(columns = ['Y'])
+    y = df['Y']
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2019)
+
+    #2
+    oversampler = RandomOverSampler(random_state = 2019)
+    X_train_oversampled, y_train_oversampled = oversampler.fit_resample(X_train, y_train)
+
+    data_dmatrix = xgb.DMatrix(data=X_train_oversampled,label=y_train_oversampled)
+
+    #3
+    params = {"objective":'binary:logistic','colsample_bytree': 0.3,'learning_rate': 0.1,
+                'max_depth': 5, 'alpha': 10}
+
+    #put results as a pandas dataframe
+    #will track auc and mean avg precision (map), as a proxy for f1 score
+    cv_results = xgb.cv(dtrain=data_dmatrix, params=params, nfold=3,
+                    num_boost_round=50,early_stopping_rounds=10,metrics=["auc", 'map'],as_pandas=True, seed=2019)
+    
+    return cv_results
