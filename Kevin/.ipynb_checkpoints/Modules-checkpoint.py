@@ -158,3 +158,12 @@ def XGBoost_evaluate(df):
                     num_boost_round=50,early_stopping_rounds=10,metrics=["auc", 'map'],as_pandas=True, seed=2019)
     
     return cv_results
+
+def plot_auc_map(cv_results):
+    """plots the auc-score and map-score from the XGBoost_evaluate function
+    Input: cross_validation results from XGBoost_evaluate function
+    """
+    cv_results[['test-auc-mean', 'test-map-mean']].plot()
+    plt.xlabel('Round')
+    plt.ylabel('Score')
+    plt.annotate(xy = (30,.75), s='final auc-mean score: ' +str(cv_results['test-auc-mean'][49]))
