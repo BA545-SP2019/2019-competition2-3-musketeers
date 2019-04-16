@@ -80,7 +80,6 @@ def evaluate_baseline(df, NB = True):
     from sklearn.naive_bayes import GaussianNB
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
-    from sklearn.naive_bayes import GaussianNB
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split, KFold, cross_val_score
     from sklearn.metrics import classification_report, confusion_matrix
@@ -134,7 +133,7 @@ def XGBoost_evaluate(df):
     import xgboost as xgb
     from sklearn.model_selection import train_test_split, KFold, cross_val_score
     import sklearn.metrics
-    from imblearn.over_sampling import RandomOverSampler
+    from imblearn.over_sampling import SMOTE
 
     #1
     X = df.drop(columns = ['Y'])
@@ -143,7 +142,7 @@ def XGBoost_evaluate(df):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2019)
 
     #2
-    oversampler = RandomOverSampler(random_state = 2019)
+    oversampler = SMOTE(random_state = 2019)
     X_train_oversampled, y_train_oversampled = oversampler.fit_resample(X_train, y_train)
 
     data_dmatrix = xgb.DMatrix(data=X_train_oversampled,label=y_train_oversampled)
