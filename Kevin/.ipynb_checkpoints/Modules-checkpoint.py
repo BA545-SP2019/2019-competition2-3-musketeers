@@ -85,7 +85,7 @@ def evaluate_baseline(df, clf):
     from sklearn.model_selection import train_test_split, KFold, cross_val_score
     from sklearn.metrics import classification_report, confusion_matrix
     from imblearn.pipeline import make_pipeline, Pipeline
-    from imblearn.over_sampling import RandomOverSampler
+    from imblearn.over_sampling import RandomOverSampler, SMOTE
 
     X = df.drop('Y', axis = 1)
     y = df['Y']
@@ -98,7 +98,7 @@ def evaluate_baseline(df, clf):
     else:
         clf = LogisticRegression()
     
-    oversampler = RandomOverSampler(random_state = 2019)
+    oversampler = SMOTE(random_state = 2019)
     pipeline = make_pipeline(oversampler, clf)
     
     pipeline.fit(X_train, y_train)
@@ -106,6 +106,7 @@ def evaluate_baseline(df, clf):
     #10-fold cross validation
     kfold = KFold(n_splits=10, random_state=2019)
     results = cross_val_score(pipeline, X_test, y_test, cv=kfold, scoring='f1')
+    print('10-fold f1 scores:')
     print(results)
     print()
     print('corss-validation f1 score:', np.mean(results))
@@ -117,10 +118,14 @@ def XGBoost_evaluate(df):
     Ouput: 50-fold cross validation with auc and mean-avg-precision scores.
     The process is a follows:
     #1: split data into a train & test split
-    #2: create oversampled data, set a dmatrix. Will use this to train the XGBoost model.
-    #3: train XGBoost.cv on the oversampled dmatrix
+    #2: create SMOTE-applied data training sets
+    #3: create an XGBoost model
+    #4. train on SMOTE-applied data
+    #5. 10-fold Cross-validation f1 scores
     '''
     import xgboost as xgb
+    import pandas as pd
+    import numpy as np
     from sklearn.model_selection import train_test_split, KFold, cross_val_score
     import sklearn.metrics
     from imblearn.over_sampling import SMOTE
@@ -135,19 +140,26 @@ def XGBoost_evaluate(df):
     oversampler = SMOTE(random_state = 2019)
     X_train_oversampled, y_train_oversampled = oversampler.fit_resample(X_train, y_train)
 
-    data_dmatrix = xgb.DMatrix(data=X_train_oversampled,label=y_train_oversampled)
+    X_train_oversampled = pd.DataFrame(X_train_oversampled, columns = X_train.columns)
+    y_train_oversampled = pd.Series(y_train_oversampled)
+
+    X_train_dmatrix = xgb.DMatrix(X_train_oversampled)
+    y_train_dmatrix = xgb.DMatrix(y_train_oversampled)
 
     #3
-    params = {"objective":'binary:logistic','colsample_bytree': 0.3,'learning_rate': 0.1,
-                'max_depth': 5, 'alpha': 10}
+    xgb_clf = xgb.XGBClassifier(max_depth=5, n_estimators=100, colsample_bytree=0.3, learning_rate=0.1, n_jobs=-1)
 
-    #put results as a pandas dataframe
-    #will track auc and mean avg precision (map), as a proxy for f1 score
-    cv_results = xgb.cv(dtrain=data_dmatrix, params=params, nfold=3,
-                    num_boost_round=50,early_stopping_rounds=10,metrics=["auc", 'map'],as_pandas=True, seed=2019)
-    
-    return cv_results
-    plot_auc_map(cv_results)
+    #4
+    xgb_clf.fit(X_train_oversampled, y_train_oversampled)
+
+    #5
+    kfold = KFold(n_splits=10, random_state=2019)
+    results = cross_val_score(xgb_clf, X_test, y_test, cv=kfold, scoring = 'f1')
+
+    print('10-fold f1 scores:')
+    print(results)
+    print()
+    print('corss-validation f1 score:', np.mean(results))
 
 def plot_auc_map(cv_results):
     """plots the auc-score and map-score from the XGBoost_evaluate function
