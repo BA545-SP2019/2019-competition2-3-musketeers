@@ -67,7 +67,7 @@ def make_hist(df, features, n_rows, n_cols, n_bins):
     
     
     
-def evaluate_baseline(df, NB = True):
+def evaluate_baseline(df, clf):
     '''evalueates a df with a Guassian Naive Bayes Model.
         Input: a dataframe
                NB = True is want to run a simple Naive Bayes model
@@ -84,42 +84,31 @@ def evaluate_baseline(df, NB = True):
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split, KFold, cross_val_score
     from sklearn.metrics import classification_report, confusion_matrix
+    from imblearn.pipeline import make_pipeline, Pipeline
+    from imblearn.over_sampling import RandomOverSampler
 
     X = df.drop('Y', axis = 1)
     y = df['Y']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 2019)
 
-    #begin oversampling
-    oversample = pd.concat([X_train,y_train],axis=1)
-    max_size = oversample['Y'].value_counts().max()
-    lst = [oversample]
-
-    for class_index, group in oversample.groupby('Y'):
-        lst.append(group.sample(max_size-len(group), replace=True))
-    X_train = pd.concat(lst)
-    y_train=pd.DataFrame.copy(X_train['Y'])
-    del X_train['Y']
-
-    if NB:
+    #begin oversampling pipeline
+    if clf == 'NB':
         clf = GaussianNB()
     else:
         clf = LogisticRegression()
-
-    clf.fit(X_train, y_train)
-
-    y_pred = clf.predict(X_test)
-
+    
+    oversampler = RandomOverSampler(random_state = 2019)
+    pipeline = make_pipeline(oversampler, clf)
+    
+    pipeline.fit(X_train, y_train)
     
     #10-fold cross validation
     kfold = KFold(n_splits=10, random_state=2019)
-    results = cross_val_score(clf, X_train, y_train, cv=kfold, scoring='f1')
+    results = cross_val_score(pipeline, X_test, y_test, cv=kfold, scoring='f1')
     print(results)
     print()
     print('corss-validation f1 score:', np.mean(results))
-    #results_auc = cross_val_score(clf, X_train, y_train, cv=kfold, scoring='roc_auc')
-    #print()
-    #print('cross-validation auc score:', np.mean(results_auc))
     
     
 def XGBoost_evaluate(df):
@@ -158,6 +147,7 @@ def XGBoost_evaluate(df):
                     num_boost_round=50,early_stopping_rounds=10,metrics=["auc", 'map'],as_pandas=True, seed=2019)
     
     return cv_results
+    plot_auc_map(cv_results)
 
 def plot_auc_map(cv_results):
     """plots the auc-score and map-score from the XGBoost_evaluate function
