@@ -79,6 +79,8 @@ def evaluate_baseline(df, clf):
     import numpy as np
     from sklearn.naive_bayes import GaussianNB
     from sklearn.linear_model import LogisticRegression
+    from sklearn.svm import SVC
+    from sklearn.ensemble import RandomForestClassifier
     from sklearn.model_selection import train_test_split
     from sklearn.naive_bayes import GaussianNB
     from sklearn.linear_model import LogisticRegression
@@ -95,8 +97,12 @@ def evaluate_baseline(df, clf):
     #begin oversampling pipeline
     if clf == 'NB':
         clf = GaussianNB()
-    else:
+    if clf == 'Logistic':
         clf = LogisticRegression()
+    if clf == 'SVM':
+        clf = SVC()
+    if clf == 'RF':
+        clf = RandomForestClassifier()
     
     oversampler = SMOTE(random_state = 2019)
     pipeline = make_pipeline(oversampler, clf)
