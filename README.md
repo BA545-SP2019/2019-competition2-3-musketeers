@@ -1,33 +1,25 @@
-# Charles F. Dolan School of Business
+# Competition 2 | 3 Musketeers
+#### BA545 | Spring 2019 
+#### Kevin Hickey | Martin Browne | Stuart Weinstein
 
-# BA 545 – Data Mining, Competition#2, SP 2019
+**Analytical Question & Goal:**
 
-## 3 musketeers
-
-**Goal:** 
-The goal for this part of the project was to  perform Exploratory Data Analysis (EDA) and pre-process the data as best we could.We also want some initial basic models to show that our pre-processing was successful.
-
-# 
-**Explanation of Work:**
+What is the likelihood that a credit card client will default and ultimately force the closure of their account?  We were tasked with predictiing the likelihood of this worst case outcome for each ID in the test set.  To do this we must predict the binary value of the default variable.
 
 
 
-The Team began the project by examining each of the attributes and getting an understanding from the website . [Link to website](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients).
+**Files in the repository:**
+
+- The Final Project notebook explains our work process and understanding: [Final_project](Final_project.ipynb)
 
 
-We then created our Data Dictionary: **![](/Data_Dictionary_picture.JPG)**
+- The Data Dictionary: **![](Data_Dictionary_picture.JPG)**
+*Which we updated after creating our engineered features link to complete data dictionary*:  **[Data Dictionary](complete_data_dic.xlsx)** 
 
-### EDA
 
- - Firstly, we read the csv file and split out the X and Y data
- - Checked for missing values (none were observed)
- - We observed that the Y data is imbalanced, we will deal with this later
- - We investigated some unusual values, recoded and/or renamed them in the MARRIAGE, SEX and EDUCATION columns
- - Got logical ("dummy") variables for varaibles
- - Created box-plots of the columns
- - We observed -2 values in the "PAY" columns, -2 is not listed in the data dictionary. We were unsure what best way to deal with the -2 values so we performed a quick model evaulation (using Naieve Bayes and a logistic regression) of different methods to test their significant.
-     -  We left them as is(-2), we imputed them using the column mode, we changed them to -1(assumed that all negative values meant the customer payment on time), and we combined them with 0 (which is also not described in the data dictionary) creating a "other" category
-     - The performance of all 4 methods were almost identical, therefore it was decided that the -2 values were not siginificant in our models performance. We also note that the -2 values are only appromimately 7% of the data
- - Plotted a correlation matrix
- - Plotted a PCA analyisis of the data
+ - The Modules PY file : We created custom definitions to read the data file, rename the columns, generate some charts, evaluate a baseline model, and a XGBoost evaluate: These modules  mean the code is reproduceable for each model or pipeline we attempt.  **[Modules](Modules.py)** 
+ 
+ - Intial Model report submission **[Initial_models](Initial_models.ipynb)** 
+ - Data Audit report submission **[data_audit_report](data_audit_report.ipynb)**
+ 
  
